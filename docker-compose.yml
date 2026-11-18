@@ -1,0 +1,20 @@
+name: wallet-api
+
+services:
+  oracle:
+    image: gvenzl/oracle-free:23.26.4-slim-faststart
+    environment:
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:?defina ORACLE_PASSWORD no .env}
+      WALLET_OWNER_PASSWORD: ${WALLET_OWNER_PASSWORD:?defina WALLET_OWNER_PASSWORD no .env}
+      WALLET_AUDIT_PASSWORD: ${WALLET_AUDIT_PASSWORD:?defina WALLET_AUDIT_PASSWORD no .env}
+      WALLET_APP_PASSWORD: ${WALLET_APP_PASSWORD:?defina WALLET_APP_PASSWORD no .env}
+    ports:
+      - "1521:1521"
+    volumes:
+      - ./db/init:/container-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 30
