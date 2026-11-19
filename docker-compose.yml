@@ -1,5 +1,10 @@
 name: wallet-api
 
+x-flyway: &flyway
+  image: flyway/flyway:13.12.2-alpine
+  command: migrate
+  restart: "no"
+
 services:
   oracle:
     image: gvenzl/oracle-free:23.26.4-slim-faststart
@@ -18,3 +23,29 @@ services:
       timeout: 5s
       start_period: 30s
       retries: 30
+
+  migrate-audit:
+    <<: *flyway
+    depends_on:
+      oracle:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:oracle:thin:@//oracle:1521/FREEPDB1
+      FLYWAY_USER: wallet_audit
+      FLYWAY_PASSWORD: ${WALLET_AUDIT_PASSWORD}
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    volumes:
+      - ./db/migration/audit:/flyway/sql:ro
+
+  migrate-owner:
+    <<: *flyway
+    depends_on:
+      migrate-audit:
+        condition: service_completed_successfully
+    environment:
+      FLYWAY_URL: jdbc:oracle:thin:@//oracle:1521/FREEPDB1
+      FLYWAY_USER: wallet_owner
+      FLYWAY_PASSWORD: ${WALLET_OWNER_PASSWORD}
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    volumes:
+      - ./db/migration/owner:/flyway/sql:ro
