@@ -12,6 +12,8 @@ Aqui estão as principais escolhas que fiz no projeto, o motivo de cada uma e o 
 
 **Senhas só no `.env`.** O `.env` não vai pro repositório e o `.env.example` fica vazio de propósito. Se faltar alguma senha, o compose já falha na hora em vez de subir com senha padrão.
 
+**Maven Wrapper.** Assim quem for rodar só precisa de JDK e Docker, e usa a mesma versão do Maven que eu usei.
+
 ## Schemas e privilégios
 
 **A aplicação não acessa nenhuma tabela.** O `WALLET_APP` só tem `EXECUTE` no `PKG_WALLET` e `READ` em duas views. Toda escrita passa pelo package e toda leitura pelas views. Mesmo que alguém consiga a senha do app, o máximo que dá pra fazer é chamar o package, que valida tudo.
